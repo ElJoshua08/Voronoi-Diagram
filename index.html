@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voronoi Texture</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://d3js.org/d3.v5.min.js"></script>
+</head>
+<body>
+  <canvas id="canvas1"></canvas>
+
+  <div class="information">
+    <h2>VORONOI TEXTURE</h2>
+    <p>Max Points: <span id="maxPoints">100</span></p>
+  </div>
+
+  <div class="controls">
+    <input type="button" value="Generate New Points!" id="generatePoints">
+    <input type="range" min="2" max="2000" value="100" id="numPoints">
+
+  </div>
+
+  <script src="voronoiDiagram.js"></script>
+</body>
+</html>
