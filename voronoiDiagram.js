@@ -48,7 +48,9 @@ function drawVoronoiDiagram(points, canvasWidth, canvasHeight) {
     .x((d) => d.x)
     .y((d) => d.y);
 
-  function drawPolygonWithDelay(index, hue, alpha) {
+  context.clearRect(0, 0, canvasWidth, canvasHeight);
+
+  function drawPolygonWithDelay(index, delay, hue) {
     const polygon = voronoi.polygons(points)[index];
     if (!polygon) return;
 
@@ -58,40 +60,28 @@ function drawVoronoiDiagram(points, canvasWidth, canvasHeight) {
     context.closePath();
 
     context.strokeStyle = `hsl(${hue}, 100%, 30%)`;
-
-    // Use RGBA for fill style with dynamic alpha
-    context.fillStyle = `hsla(${hue}, ${randInt(30, 70)}%, ${randInt(
-      40,
-      60
-    )}%, ${alpha})`;
-
+    context.fillStyle = `hsla(${hue}, ${randInt(30, 70)}%, ${randInt(40, 60)}%, ${Math.random()})`;
     context.stroke();
     context.fill();
 
     if (index < points.length - 1) {
-      ongoingTimeout = setTimeout(() => {
-        drawPolygonWithDelay(index + 1, hue, alpha + 0.001); // Increment alpha
-      });
+      ongoingTimeout = setTimeout(
+        () => drawPolygonWithDelay(index + 1, delay, hue),
+        delay
+      );
     } else {
       // After all polygons are drawn, draw the points
       drawPoints(points, hue);
     }
   }
 
-  const fixedDelay = 0.0005;
-  const delay = Math.max(fixedDelay, fixedDelay + (2000 - numPoints) * 0.009);
+  const fixedDelay = 0.0005; // Adjust the fixed delay for a large number of points
+  const delay = Math.max(fixedDelay, fixedDelay + (2000 - numPoints) * 0.009); // Adjust the multiplier as needed
 
-  function startDrawing() {
-    context.clearRect(0, 0, canvasWidth, canvasHeight); // Clear the canvas
-    drawPolygonWithDelay(0, hue, 0);
-  }
-
-  startDrawing();
+  drawPolygonWithDelay(0, delay, hue);
 }
 
 function drawPoints(points, hue) {
-
-
   points.forEach((point) => {
     context.beginPath();
     context.arc(point.x, point.y, 2, 0, Math.PI * 2);
