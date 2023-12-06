@@ -48,53 +48,50 @@ function drawVoronoiDiagram(points, canvasWidth, canvasHeight) {
     .x((d) => d.x)
     .y((d) => d.y);
 
-  context.clearRect(0, 0, canvasWidth, canvasHeight);
-
-  function drawPolygonWithFadeIn(index, alpha, hue) {
+  function drawPolygonWithDelay(index, hue, alpha) {
     const polygon = voronoi.polygons(points)[index];
     if (!polygon) return;
 
-    const fadeInSpeed = 1 / 60; // Adjust the speed of the fade-in effect
-
     context.beginPath();
     context.moveTo(polygon[0][0], polygon[0][1]);
-
-    // Draw each segment with a fade-in effect
-    for (let i = 0; i < polygon.length; i++) {
-      const currentPoint = polygon[i];
-      context.lineTo(currentPoint[0], currentPoint[1]);
-
-      // Increase the alpha (transparency) gradually
-      context.globalAlpha = alpha;
-    }
-
+    polygon.forEach((point) => context.lineTo(point[0], point[1]));
     context.closePath();
 
     context.strokeStyle = `hsl(${hue}, 100%, 30%)`;
-    context.fillStyle = `hsl(${hue}, ${randInt(30, 70)}%, ${randInt(40, 60)}%)`;
+
+    // Use RGBA for fill style with dynamic alpha
+    context.fillStyle = `hsla(${hue}, ${randInt(30, 70)}%, ${randInt(
+      40,
+      60
+    )}%, ${alpha})`;
+
     context.stroke();
     context.fill();
 
-    context.globalAlpha = 1; // Reset alpha to ensure other drawings are not affected
-
-    if (alpha < 1) {
-      const newAlpha = alpha + fadeInSpeed;
-      requestAnimationFrame(() => drawPolygonWithFadeIn(index, newAlpha, hue));
-    } else if (index < points.length - 1) {
-      // Calculate the delay based on the polygon index
-      const delay = Math.max(100 - index, 3);
-
-      // Move to the next polygon after completing the current one with a delay
-      setTimeout(() => {
-        drawPolygonWithFadeIn(index + 1, 0, hue);
-      }, delay); // Adjust the delay before moving to the next polygon
+    if (index < points.length - 1) {
+      ongoingTimeout = setTimeout(() => {
+        drawPolygonWithDelay(index + 1, hue, alpha + 0.001); // Increment alpha
+      });
+    } else {
+      // After all polygons are drawn, draw the points
+      drawPoints(points, hue);
     }
   }
 
-  drawPolygonWithFadeIn(0, 0, hue);
+  const fixedDelay = 0.0005;
+  const delay = Math.max(fixedDelay, fixedDelay + (2000 - numPoints) * 0.009);
+
+  function startDrawing() {
+    context.clearRect(0, 0, canvasWidth, canvasHeight); // Clear the canvas
+    drawPolygonWithDelay(0, hue, 0);
+  }
+
+  startDrawing();
 }
 
 function drawPoints(points, hue) {
+
+
   points.forEach((point) => {
     context.beginPath();
     context.arc(point.x, point.y, 2, 0, Math.PI * 2);
